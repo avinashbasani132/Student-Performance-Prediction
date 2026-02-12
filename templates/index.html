@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Performance Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🎓 Student Performance Predictor</h1>
+
+    <form method="POST">
+
+        <label>Hours Studied</label>
+        <input type="number" name="hours" required>
+
+        <label>Previous Score</label>
+        <input type="float" name="prev" required>
+
+        <label>Extracurricular Activity</label>
+        <select name="extra">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </select>
+
+        <label>Sleep Hours</label>
+        <input type="number" name="sleep" required>
+
+        <label>Number of Subjects</label>
+        <input type="number" name="papers" required>
+
+        <button type="submit">Predict CGPA</button>
+
+    </form>
+
+   {% if cgpa is not none %}
+
+   
+<div class="result">
+    Predicted CGPA: <span>{{ cgpa }}</span> / 10
+</div>
+{% endif %}
+
+</div>
+
+</body>
+</html>
