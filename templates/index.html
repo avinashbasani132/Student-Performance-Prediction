@@ -1,49 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Student Performance Predictor</title>
+    <title>AI CGPA Predictor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
-<div class="container">
+<div class="main-container">
 
-    <h1>🎓 Student Performance Predictor</h1>
+    <div class="card">
+        <h1>🎓 AI CGPA Predictor</h1>
+        <p class="subtitle">Smart Academic Performance Estimator</p>
 
-    <form method="POST">
+        {% if error %}
+        <div class="error-box">
+            {{ error }}
+        </div>
+        {% endif %}
 
-        <label>Hours Studied</label>
-        <input type="number" name="hours" required>
+        <form method="POST">
 
-        <label>Previous Score</label>
-        <input type="float" name="prev" required>
+            <div class="input-group">
+                <label>Hours Studied </label>
+                <input type="number" name="hours" min="1" max="24" required>
+            </div>
 
-        <label>Extracurricular Activity</label>
-        <select name="extra">
-            <option value="1">Yes</option>
-            <option value="0">No</option>
-        </select>
+            <div class="input-group">
+                <label>Previous CGPA </label>
+                <input type="number" name="prev" min="0" max="10" step="0.01" required>
+            </div>
 
-        <label>Sleep Hours</label>
-        <input type="number" name="sleep" required>
+            <div class="input-group">
+                <label>Extracurricular Activity</label>
+                <select name="extra">
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                </select>
+            </div>
 
-        <label>Number of Subjects</label>
-        <input type="number" name="papers" required>
+            <div class="input-group">
+                <label>Sleep Hours </label>
+                <input type="number" name="sleep" min="0" max="24" required>
+            </div>
 
-        <button type="submit">Predict CGPA</button>
+            <div class="input-group">
+                <label>Subjects Practiced </label>
+                <input type="number" name="papers" min="0" max="10" required>
+            </div>
 
-    </form>
+            <button type="submit" class="btn">Predict Now 🚀</button>
 
-   {% if cgpa is not none %}
+        </form>
 
-   
-<div class="result">
-    Predicted CGPA: <span>{{ cgpa }}</span> / 10
-</div>
-{% endif %}
+        {% if cgpa %}
+        <div class="result-card">
+            <h2>Predicted CGPA</h2>
+            <div class="cgpa-value">{{ cgpa }} / 10</div>
+
+            <div class="progress-container">
+                <div 
+                    class="progress-bar 
+                    {% if cgpa >= 8 %}
+                        excellent
+                    {% elif cgpa >= 6 %}
+                        good
+                    {% elif cgpa >= 4 %}
+                        average
+                    {% else %}
+                        poor
+                    {% endif %}"
+                    style="width: {{ cgpa * 10 }}%;">
+                </div>
+            </div>
+
+            <p class="performance-text">
+                {% if cgpa >= 8 %}
+                    🟢 Excellent Performance
+                {% elif cgpa >= 6 %}
+                    🟡 Good Performance
+                {% elif cgpa >= 4 %}
+                    🟠 Average Performance
+                {% else %}
+                    🔴 Needs Improvement
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+
+    </div>
 
 </div>
 
