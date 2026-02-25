@@ -3,32 +3,41 @@
 <head>
     <title>AI CGPA Predictor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
 <div class="main-container">
-
     <div class="card">
+
         <h1>🎓 AI CGPA Predictor</h1>
         <p class="subtitle">Smart Academic Performance Estimator</p>
 
+        <!-- ❌ Error Message -->
         {% if error %}
         <div class="error-box">
-            {{ error }}
+            ❌ {{ error }}
         </div>
+        {% endif %}
+
+        <!-- ⚠️ Warning Messages -->
+        {% if warnings %}
+            {% for warn in warnings %}
+            <div class="warning-box">
+                ⚠️ {{ warn }}
+            </div>
+            {% endfor %}
         {% endif %}
 
         <form method="POST">
 
             <div class="input-group">
-                <label>Hours Studied </label>
+                <label>Hours Studied</label>
                 <input type="number" name="hours" min="1" max="24" required>
             </div>
 
             <div class="input-group">
-                <label>Previous CGPA </label>
+                <label>Previous CGPA</label>
                 <input type="number" name="prev" min="0" max="10" step="0.01" required>
             </div>
 
@@ -41,12 +50,12 @@
             </div>
 
             <div class="input-group">
-                <label>Sleep Hours </label>
+                <label>Sleep Hours</label>
                 <input type="number" name="sleep" min="0" max="24" required>
             </div>
 
             <div class="input-group">
-                <label>Subjects Practiced </label>
+                <label>Subjects Practiced</label>
                 <input type="number" name="papers" min="0" max="10" required>
             </div>
 
@@ -54,6 +63,7 @@
 
         </form>
 
+        <!-- ✅ Result Section -->
         {% if cgpa %}
         <div class="result-card">
             <h2>Predicted CGPA</h2>
@@ -90,7 +100,6 @@
         {% endif %}
 
     </div>
-
 </div>
 
 </body>

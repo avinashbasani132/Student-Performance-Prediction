@@ -63,6 +63,11 @@ input, select {
     border: none;
     margin-top: 5px;
     outline: none;
+    transition: 0.3s;
+}
+
+input:focus, select:focus {
+    box-shadow: 0 0 5px rgba(255,255,255,0.8);
 }
 
 .btn {
@@ -88,7 +93,7 @@ input, select {
 }
 
 .cgpa-value {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
     margin: 10px 0;
 }
@@ -106,7 +111,7 @@ input, select {
     transition: width 1s ease-in-out;
 }
 
-/* Color levels */
+/* Performance Colors */
 .excellent { background: #28a745; }
 .good { background: #ffc107; }
 .average { background: #fd7e14; }
@@ -117,10 +122,24 @@ input, select {
     font-weight: bold;
 }
 
+/* Error Message */
 .error-box {
-    background: rgba(255, 0, 0, 0.3);
+    background: rgba(220, 53, 69, 0.3);
     padding: 10px;
     border-radius: 10px;
     margin-bottom: 15px;
     text-align: center;
+    font-weight: bold;
+    color: #721c24;
+}
+
+/* Warning Message */
+.warning-box {
+    background: rgba(255, 193, 7, 0.3);
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #856404;
 }

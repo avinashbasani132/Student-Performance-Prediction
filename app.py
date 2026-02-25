@@ -2,42 +2,52 @@ from flask import Flask, render_template, request
 import pandas as pd
 import joblib
 
+# Initialize Flask app
 app = Flask(__name__)
 
+# Load trained ML model
 model = joblib.load("student_model.pkl")
+
 
 @app.route("/", methods=["GET", "POST"])
 def home():
 
     cgpa = None
     error = None
+    warnings = []
 
     if request.method == "POST":
-
         try:
+            # Get form values
             hours = float(request.form["hours"])
             prev_cgpa = float(request.form["prev"])
-            prev = prev_cgpa * 10
             extra = int(request.form["extra"])
             sleep = float(request.form["sleep"])
             papers = int(request.form["papers"])
 
-            # ✅ Validation
-            if not (1 <= hours <= 24):
-                error = "Hours studied must be between 1 and 24."
+            # Convert CGPA to marks (because model trained on marks)
+            prev_marks = prev_cgpa * 10
 
-            elif not (0 <= prev_cgpa <= 10):
-                error = "CGPA must be between 0 and 10."
-
-            elif not (0 <= sleep <= 24):
-                error = "Sleep hours must be between 0 and 24."
-
-            elif not (0 <= papers <= 10):
-                error = "Subjects must be between 0 and 10."
+            # ❌ Hard Validation: Impossible case
+            if hours + sleep > 24:
+                error = "In a day, there are only 24 hours."
 
             else:
+                # ⚠️ Soft Warning: Study >= 20
+                if hours > 20:
+                    warnings.append(
+                        "If you study more than 20 hours, it may affect your health."
+                    )
+
+                # ⚠️ Soft Warning: Sleep >= 20
+                if sleep > 20:
+                    warnings.append(
+                        "If you sleep more than 20 hours, it may affect your health."
+                    )
+
+                # Prepare input data for prediction
                 input_data = pd.DataFrame(
-                    [[hours, prev, extra, sleep, papers]],
+                    [[hours, prev_marks, extra, sleep, papers]],
                     columns=[
                         "Hours Studied",
                         "Previous Scores",
@@ -47,14 +57,25 @@ def home():
                     ]
                 )
 
+                # Predict
                 prediction = model.predict(input_data)[0]
+
+                # Keep prediction within safe range
                 prediction = max(0, min(100, prediction))
+
+                # Convert marks to CGPA
                 cgpa = round(prediction / 10, 2)
 
-        except:
+        except Exception as e:
+            print("Error:", e)
             error = "Invalid input. Please enter correct values."
 
-    return render_template("index.html", cgpa=cgpa, error=error)
+    return render_template(
+        "index.html",
+        cgpa=cgpa,
+        error=error,
+        warnings=warnings
+    )
 
 
 if __name__ == "__main__":
