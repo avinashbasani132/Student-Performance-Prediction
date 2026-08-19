@@ -1,106 +1,466 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
 <head>
-    <title>AI CGPA Predictor</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Student Performance & CGPA Predictor</title>
+    <meta name="description" content="AI-powered academic performance estimator and CGPA predictor with intelligent lifestyle and study analytics.">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="main-container">
-    <div class="card">
+<div class="app-container">
 
-        <h1>🎓 AI CGPA Predictor</h1>
-        <p class="subtitle">Smart Academic Performance Estimator</p>
-
-        <!-- ❌ Error Message -->
-        {% if error %}
-        <div class="error-box">
-            ❌ {{ error }}
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="brand">
+            <div class="brand-icon">🎓</div>
+            <div class="brand-info">
+                <h1>AI CGPA Predictor & Advisor</h1>
+                <p>Machine Learning Academic Performance Intelligence</p>
+            </div>
         </div>
-        {% endif %}
 
-        <!-- ⚠️ Warning Messages -->
-        {% if warnings %}
-            {% for warn in warnings %}
-            <div class="warning-box">
-                ⚠️ {{ warn }}
-            </div>
-            {% endfor %}
-        {% endif %}
+        <div class="nav-actions">
+            <!-- Tab Navigation -->
+            <nav class="tab-navigation">
+                <button type="button" class="nav-tab active" data-target="view-predictor">
+                    <span>🔮</span> Predictor
+                </button>
+                <button type="button" class="nav-tab" data-target="view-goal-planner">
+                    <span>🎯</span> Goal Planner
+                </button>
+                <button type="button" class="nav-tab" data-target="view-model-insights">
+                    <span>📊</span> Model Insights
+                </button>
+            </nav>
 
-        <form method="POST">
+            <!-- Dark/Light Theme Toggle Button -->
+            <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Theme">
+                ☀️
+            </button>
+        </div>
+    </header>
 
-            <div class="input-group">
-                <label>Hours Studied</label>
-                <input type="number" name="hours" min="1" max="24" required>
-            </div>
+    <!-- ========================================================
+         VIEW 1: SMART PREDICTOR & DASHBOARD
+         ======================================================== -->
+    <main id="view-predictor" class="view-section active">
+        <div class="dashboard-grid">
 
-            <div class="input-group">
-                <label>Previous CGPA</label>
-                <input type="number" name="prev" min="0" max="10" step="0.01" required>
-            </div>
+            <!-- LEFT PANEL: INPUT CONTROLS & FORM -->
+            <section class="glass-card form-panel">
+                <div class="card-header">
+                    <h2>⚙️ Student Profile & Habits</h2>
+                    <p>Customize your study routine, sleep balance, and past academic metrics.</p>
+                </div>
 
-            <div class="input-group">
-                <label>Extracurricular Activity</label>
-                <select name="extra">
-                    <option value="1">Yes</option>
-                    <option value="0">No</option>
-                </select>
-            </div>
+                <!-- Persona Quick Presets -->
+                <div class="presets-container">
+                    <div class="presets-label">⚡ Quick Presets</div>
+                    <div class="preset-chips">
+                        <button type="button" class="chip-btn" data-preset="topper">
+                            <span>🌟</span> Topper / Achiever
+                        </button>
+                        <button type="button" class="chip-btn" data-preset="balanced">
+                            <span>⚖️</span> Balanced Routine
+                        </button>
+                        <button type="button" class="chip-btn" data-preset="night-owl">
+                            <span>🌙</span> Night Owl Crammer
+                        </button>
+                        <button type="button" class="chip-btn" data-preset="catch-up">
+                            <span>📈</span> Recovery Mode
+                        </button>
+                    </div>
+                </div>
 
-            <div class="input-group">
-                <label>Sleep Hours</label>
-                <input type="number" name="sleep" min="0" max="24" required>
-            </div>
+                <!-- Server Side Alerts -->
+                {% if error %}
+                <div class="alert-box alert-error">
+                    <span>❌ <strong>Error:</strong> {{ error }}</span>
+                </div>
+                {% endif %}
 
-            <div class="input-group">
-                <label>Subjects Practiced</label>
-                <input type="number" name="papers" min="0" max="10" required>
-            </div>
+                {% if warnings %}
+                    {% for warn in warnings %}
+                    <div class="alert-box alert-warning">
+                        <span>⚠️ {{ warn }}</span>
+                    </div>
+                    {% endfor %}
+                {% endif %}
 
-            <button type="submit" class="btn">Predict Now 🚀</button>
+                <!-- Dynamic Client-Side Warning Alert -->
+                <div id="clientWarningBox" class="alert-box" style="display: none;"></div>
 
-        </form>
+                <form id="predictionForm" method="POST" action="/">
 
-        <!-- ✅ Result Section -->
-        {% if cgpa %}
-        <div class="result-card">
-            <h2>Predicted CGPA</h2>
-            <div class="cgpa-value">{{ cgpa }} / 10</div>
+                    <!-- 1. Hours Studied -->
+                    <div class="form-group-item">
+                        <div class="input-header">
+                            <label for="hours_input">
+                                <span>📚</span> Hours Studied Daily
+                            </label>
+                            <span class="unit-badge">1 - 24 hrs</span>
+                        </div>
+                        <div class="dual-control-row">
+                            <div class="slider-wrapper">
+                                <input type="range" id="hours_slider" min="1" max="24" step="0.5" value="{{ form_data.hours }}">
+                            </div>
+                            <div class="num-box-wrapper">
+                                <input type="number" id="hours_input" name="hours" min="1" max="24" step="0.5" value="{{ form_data.hours }}" required>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="progress-container">
-                <div 
-                    class="progress-bar 
-                    {% if cgpa >= 8 %}
-                        excellent
-                    {% elif cgpa >= 6 %}
-                        good
-                    {% elif cgpa >= 4 %}
-                        average
-                    {% else %}
-                        poor
-                    {% endif %}"
-                    style="width: {{ cgpa * 10 }}%;">
+                    <!-- 2. Previous CGPA -->
+                    <div class="form-group-item">
+                        <div class="input-header">
+                            <label for="prev_input">
+                                <span>📊</span> Previous CGPA (Scale 0 - 10)
+                            </label>
+                            <span class="unit-badge">0.0 - 10.0</span>
+                        </div>
+                        <div class="dual-control-row">
+                            <div class="slider-wrapper">
+                                <input type="range" id="prev_slider" min="0" max="10" step="0.1" value="{{ form_data.prev }}">
+                            </div>
+                            <div class="num-box-wrapper">
+                                <input type="number" id="prev_input" name="prev" min="0" max="10" step="0.01" value="{{ form_data.prev }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Extracurricular Activities -->
+                    <div class="form-group-item">
+                        <div class="input-header">
+                            <label for="extra_input">
+                                <span>🏃</span> Extracurricular Involvement
+                            </label>
+                            <span class="unit-badge">Sports, Clubs, Arts</span>
+                        </div>
+                        <div class="select-wrapper">
+                            <select id="extra_input" name="extra">
+                                <option value="1" {% if form_data.extra == 1 %}selected{% endif %}>Yes - Actively Involved</option>
+                                <option value="0" {% if form_data.extra == 0 %}selected{% endif %}>No - Not Involved</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 4. Sleep Hours -->
+                    <div class="form-group-item">
+                        <div class="input-header">
+                            <label for="sleep_input">
+                                <span>😴</span> Daily Sleep Duration
+                            </label>
+                            <span class="unit-badge">0 - 24 hrs</span>
+                        </div>
+                        <div class="dual-control-row">
+                            <div class="slider-wrapper">
+                                <input type="range" id="sleep_slider" min="0" max="24" step="0.5" value="{{ form_data.sleep }}">
+                            </div>
+                            <div class="num-box-wrapper">
+                                <input type="number" id="sleep_input" name="sleep" min="0" max="24" step="0.5" value="{{ form_data.sleep }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Sample Question Papers Practiced -->
+                    <div class="form-group-item">
+                        <div class="input-header">
+                            <label for="papers_input">
+                                <span>📝</span> Question Papers Practiced
+                            </label>
+                            <span class="unit-badge">0 - 10 Papers</span>
+                        </div>
+                        <div class="dual-control-row">
+                            <div class="slider-wrapper">
+                                <input type="range" id="papers_slider" min="0" max="10" step="1" value="{{ form_data.papers }}">
+                            </div>
+                            <div class="num-box-wrapper">
+                                <input type="number" id="papers_input" name="papers" min="0" max="10" step="1" value="{{ form_data.papers }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 24-Hour Daily Budget Bar -->
+                    <div class="time-budget-card">
+                        <div class="time-budget-header">
+                            <span>24-Hour Daily Schedule Budget</span>
+                            <span id="budgetStatusText">12.0h / 24h</span>
+                        </div>
+                        <div class="budget-bar-track">
+                            <div id="segStudy" class="budget-segment seg-study" style="width: 20%;"></div>
+                            <div id="segSleep" class="budget-segment seg-sleep" style="width: 29%;"></div>
+                            <div id="segFree" class="budget-segment seg-free" style="width: 51%;"></div>
+                        </div>
+                        <div class="budget-legend">
+                            <div class="legend-item"><span class="legend-dot" style="background: var(--accent-indigo);"></span> Study</div>
+                            <div class="legend-item"><span class="legend-dot" style="background: var(--accent-cyan);"></span> Sleep</div>
+                            <div class="legend-item"><span class="legend-dot" style="background: rgba(255,255,255,0.2);"></span> Free/Other</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="predict-btn">
+                        <span>Predict Performance</span> 🚀
+                    </button>
+
+                </form>
+            </section>
+
+            <!-- RIGHT PANEL: PREDICTION RESULTS & AI INSIGHTS -->
+            <section class="results-panel">
+
+                <!-- CGPA Radial Gauge Card -->
+                <div class="glass-card gauge-hero-card">
+                    <div class="card-header" style="text-align: center;">
+                        <h2>🎯 Predicted Academic Outcome</h2>
+                        <p>Real-time machine learning prediction & grading</p>
+                    </div>
+
+                    <!-- SVG Circular Radial Gauge -->
+                    <div class="gauge-wrapper">
+                        <svg class="radial-svg" viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#6366f1" />
+                                    <stop offset="50%" stop-color="#0ea5e9" />
+                                    <stop offset="100%" stop-color="#10b981" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="gauge-circle-bg" cx="100" cy="100" r="90"></circle>
+                            <circle id="gaugeCircleProgress" class="gauge-circle-progress" cx="100" cy="100" r="90"></circle>
+                        </svg>
+                        <div class="gauge-center-content">
+                            <div id="gaugeCgpaNumber" class="gauge-cgpa-number">
+                                {{ result.cgpa if result else '8.40' }}
+                            </div>
+                            <div class="gauge-max-text">out of 10.0 CGPA</div>
+                            <div id="gaugeGradeBadge" class="gauge-grade-badge">
+                                Grade: {{ result.grade if result else 'A' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Tier Pill -->
+                    <div>
+                        <span id="tierBadgePill" class="tier-badge-pill" style="color: {{ result.color if result else '#10b981' }};">
+                            {{ result.badge if result else '🟢 Excellent' }} ({{ result.tier if result else 'Distinction' }})
+                        </span>
+                    </div>
+
+                    <!-- Quick Metrics Row -->
+                    <div class="quick-metrics-row" style="margin-top: 20px;">
+                        <div class="metric-stat-box">
+                            <div class="metric-stat-label">Score Index</div>
+                            <div id="statScore" class="metric-stat-val">
+                                {{ result.score if result else '84.0' }} / 100
+                            </div>
+                        </div>
+                        <div class="metric-stat-box">
+                            <div class="metric-stat-label">Study : Sleep</div>
+                            <div id="statRatio" class="metric-stat-val">
+                                0.71 : 1
+                            </div>
+                        </div>
+                        <div class="metric-stat-box">
+                            <div class="metric-stat-label">Free Time</div>
+                            <div id="statFree" class="metric-stat-val">
+                                {{ result.free_hours if result else '12.0' }}h / day
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Recommendations Card -->
+                <div class="glass-card ai-insights-container">
+                    <h3>💡 Personalized AI Action Plan</h3>
+                    <div id="recommendationsList" class="recommendations-list">
+                        {% if result and result.recommendations %}
+                            {% for rec in result.recommendations %}
+                            <div class="rec-card {{ rec.type }}">
+                                <div class="rec-icon">{{ rec.icon }}</div>
+                                <div class="rec-content">
+                                    <h4>{{ rec.title }}</h4>
+                                    <p>{{ rec.message }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="rec-card positive">
+                                <div class="rec-icon">🌟</div>
+                                <div class="rec-content">
+                                    <h4>Dedicated Study Commitment</h4>
+                                    <p>Your study schedule is well-structured. Combine focused study blocks with regular mock test reviews.</p>
+                                </div>
+                            </div>
+                            <div class="rec-card health">
+                                <div class="rec-icon">💤</div>
+                                <div class="rec-content">
+                                    <h4>Optimal Sleep Schedule</h4>
+                                    <p>Maintaining a 7-8 hour sleep schedule ensures solid cognitive endurance and memory recall.</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Export and Action Row -->
+                    <div class="action-buttons-row">
+                        <button type="button" id="printReportBtn" class="btn-secondary">
+                            <span>🖨️</span> Export Summary Report
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ========================================================
+         VIEW 2: "WHAT-IF" TARGET CGPA GOAL PLANNER
+         ======================================================== -->
+    <section id="view-goal-planner" class="view-section">
+        <div class="goal-planner-container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>🎯 "What-If" Academic Goal Planner</h2>
+                    <p>Enter your dream target CGPA and receive an optimized machine learning study roadmap.</p>
+                </div>
+
+                <div class="planner-controls-grid">
+                    <div class="form-group-item">
+                        <label for="current_cgpa_input" style="font-size: 13px; font-weight: 600; margin-bottom: 8px; display: block;">
+                            📊 Your Current CGPA
+                        </label>
+                        <input type="number" id="current_cgpa_input" min="0" max="10" step="0.1" value="7.2" class="num-box-wrapper" style="width: 100%; text-align: left; padding: 10px 14px;">
+                    </div>
+
+                    <div class="form-group-item">
+                        <label for="target_cgpa_input" style="font-size: 13px; font-weight: 600; margin-bottom: 8px; display: block;">
+                            🏆 Desired Target CGPA
+                        </label>
+                        <input type="number" id="target_cgpa_input" min="1" max="10" step="0.1" value="9.0" class="num-box-wrapper" style="width: 100%; text-align: left; padding: 10px 14px;">
+                    </div>
+                </div>
+
+                <button type="button" id="calcGoalBtn" class="predict-btn">
+                    Generate Target Roadmap 🚀
+                </button>
+
+                <!-- Goal Plan Result -->
+                <div id="planResultContainer" class="plan-result-card" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 18px;">📋 Recommended Target Routine</h3>
+                        <span id="planDifficulty" class="gauge-grade-badge">Effort: Moderate</span>
+                    </div>
+
+                    <div class="plan-roadmap-grid">
+                        <div class="plan-box">
+                            <div class="plan-box-title">Daily Study Time</div>
+                            <div id="planStudyHours" class="plan-box-val">6.5 hrs/day</div>
+                            <span style="font-size: 11px; color: var(--text-muted);">Focused revision</span>
+                        </div>
+                        <div class="plan-box">
+                            <div class="plan-box-title">Mock Question Papers</div>
+                            <div id="planPapers" class="plan-box-val">6 Papers</div>
+                            <span style="font-size: 11px; color: var(--text-muted);">Full length tests</span>
+                        </div>
+                        <div class="plan-box">
+                            <div class="plan-box-title">Sleep Schedule</div>
+                            <div id="planSleep" class="plan-box-val">7.5 hrs/day</div>
+                            <span style="font-size: 11px; color: var(--text-muted);">For memory retention</span>
+                        </div>
+                    </div>
+
+                    <div class="strategy-callout">
+                        <strong>💡 Actionable Strategy:</strong> <span id="planStrategy">Maintain consistent 2-hour morning blocks and review all incorrect solutions in sample papers.</span>
+                    </div>
                 </div>
             </div>
-
-            <p class="performance-text">
-                {% if cgpa >= 8 %}
-                    🟢 Excellent Performance
-                {% elif cgpa >= 6 %}
-                    🟡 Good Performance
-                {% elif cgpa >= 4 %}
-                    🟠 Average Performance
-                {% else %}
-                    🔴 Needs Improvement
-                {% endif %}
-            </p>
         </div>
-        {% endif %}
+    </section>
 
-    </div>
+    <!-- ========================================================
+         VIEW 3: MODEL & ANALYTICS INSIGHTS
+         ======================================================== -->
+    <section id="view-model-insights" class="view-section">
+        <div class="model-insights-container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>🧠 Machine Learning Model & Data Architecture</h2>
+                    <p>Understanding how the AI evaluates academic indicators and predicts outcomes.</p>
+                </div>
+
+                <div class="architecture-grid">
+                    <div class="arch-card">
+                        <h4>🤖 Primary Model</h4>
+                        <p>Random Forest Regressor (200 decision trees, max depth 10) for robust nonlinear regression.</p>
+                    </div>
+                    <div class="arch-card">
+                        <h4>📈 Evaluation Metric</h4>
+                        <p>Mean Squared Error (MSE) & R² Score evaluation on an 80/20 train-test split.</p>
+                    </div>
+                    <div class="arch-card">
+                        <h4>💾 Benchmark Dataset</h4>
+                        <p>10,000 real student academic and lifestyle records with verified performance labels.</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 32px; font-size: 16px;">📊 Feature Impact Breakdown</h3>
+                <table class="features-table">
+                    <thead>
+                        <tr>
+                            <th>Feature Name</th>
+                            <th>Data Type</th>
+                            <th>Unit / Scale</th>
+                            <th>Model Impact Weight</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Hours Studied</strong></td>
+                            <td>Numeric (Continuous)</td>
+                            <td>1 - 24 hrs / day</td>
+                            <td><span style="color: var(--accent-emerald); font-weight: 700;">Very High (Primary Driver)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Previous Scores</strong></td>
+                            <td>Numeric (Continuous)</td>
+                            <td>0 - 100 Marks / 0 - 10 CGPA</td>
+                            <td><span style="color: var(--accent-emerald); font-weight: 700;">Very High (Historical Baseline)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sample Question Papers</strong></td>
+                            <td>Numeric (Discrete)</td>
+                            <td>0 - 10 Papers</td>
+                            <td><span style="color: var(--accent-cyan); font-weight: 700;">High (Exam Preparedness)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sleep Hours</strong></td>
+                            <td>Numeric (Continuous)</td>
+                            <td>0 - 24 hrs / day</td>
+                            <td><span style="color: var(--accent-amber); font-weight: 700;">Moderate (Cognitive Endurance)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Extracurricular Activities</strong></td>
+                            <td>Categorical (Binary)</td>
+                            <td>Yes (1) / No (0)</td>
+                            <td><span style="color: var(--text-muted); font-weight: 700;">Moderate (Lifestyle Balance)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>AI Student Performance Prediction Platform • Built with Flask, Scikit-Learn & Modern Glassmorphism CSS</p>
+        <p style="margin-top: 4px;">Created by <a href="https://github.com/avinashbasani132" target="_blank">Avinash Basani</a></p>
+    </footer>
+
 </div>
 
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

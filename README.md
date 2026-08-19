@@ -1,4 +1,4 @@
-# 🎓 AI Student Performance & CGPA Predictor
+# 🎓 AI Student Performance & CGPA Predictor & Advisor
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.9+" />
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <strong>An end-to-end Machine Learning web application designed to forecast student academic performance and estimate CGPA using academic history and lifestyle metrics.</strong>
+  <strong>A full-stack, AI-powered academic performance platform featuring a modern glassmorphic dashboard, real-time CGPA estimation, personalized AI study action plans, a "What-If" goal planner, and RESTful API endpoints.</strong>
 </p>
 
 ---
@@ -22,6 +22,7 @@
 - [System Architecture](#-system-architecture)
 - [Dataset & Feature Description](#-dataset--feature-description)
 - [Machine Learning Model](#-machine-learning-model)
+- [REST API Documentation](#-rest-api-documentation)
 - [Project Directory Structure](#-project-directory-structure)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
@@ -37,25 +38,20 @@
 
 ## 📖 Overview
 
-The **AI Student Performance Predictor** is a data-driven web platform that enables students, educators, and mentors to predict expected academic results based on study habits, past performance, and lifestyle routines. 
-
-Trained on a comprehensive dataset of student metrics, the system implements a predictive regression model packaged into a responsive Flask web service with a modern glassmorphic interface, dynamic progress indicators, and health-conscious validation rules.
+The **AI Student Performance Predictor & Advisor** is an end-to-end intelligent web application designed for students, educators, and academic advisors. By analyzing behavioral and academic parameters, it accurately forecasts expected CGPA and generates personalized, actionable recommendations to improve study efficiency, sleep balance, and mock exam readiness.
 
 ---
 
 ## ✨ Key Features
 
-- **🎯 Accurate CGPA & Score Estimation:** Predicts student performance on a 100-point scale and converts it seamlessly to standard 10.0 CGPA grading.
-- **🛡️ Smart Data Validation & Safeguards:**
-  - **Hard Constraints:** Rejects illogical inputs (e.g., total study + sleep hours exceeding 24 hours in a single day).
-  - **Soft Lifestyle Warnings:** Flags unhealthy habits (e.g., studying or sleeping $>20\text{ hours/day}$).
-- **🎨 Glassmorphism & Animated UI:** Built with animated multi-tone gradient backgrounds, frosted-glass cards, and mobile-friendly responsive components.
-- **📊 Tier-Based Visual Analytics:** Dynamic color-coded performance bands:
-  - 🟢 **$\ge 8.0$ CGPA:** *Excellent Performance*
-  - 🟡 **$6.0 - 7.99$ CGPA:** *Good Performance*
-  - 🟠 **$4.0 - 5.99$ CGPA:** *Average Performance*
-  - 🔴 **$< 4.0$ CGPA:** *Needs Improvement*
-- **🚀 Production-Ready Architecture:** Configured with `Procfile` and `Gunicorn` WSGI server for seamless deployment on platforms like Render, Heroku, or Railway.
+- **🔮 Smart Real-Time CGPA Predictor:** Instant prediction of academic outcomes with dynamic SVG circular radial gauges, grading tiers (A+, A, B, C, D), and score index conversions.
+- **💡 Personalized AI Action Plan:** Rule-based AI advisory engine generating customized recommendations based on sleep balance, study habits, and question paper practice.
+- **🎯 "What-If" Target Goal Planner:** Reverse-simulation tool that computes the exact daily study routine, sample papers, and sleep schedule required to achieve any desired target CGPA.
+- **⚡ Persona Quick-Presets:** One-click autofill profiles (*Topper / Achiever*, *Balanced Routine*, *Night Owl Crammer*, *Recovery Mode*).
+- **⏱️ 24-Hour Daily Time Budget Meter:** Real-time visual tracking of study, sleep, and free hours with automated burnout and schedule conflict alerts.
+- **🌓 Dark & Light Glassmorphism UI:** Ultra-modern frosted-glass cards, animated multi-tone gradient backgrounds, and responsive mobile-first grid.
+- **🖨️ Export / Print Summary:** One-click formatted report generation for student progress records.
+- **🔌 Full REST API Suite:** Async JSON endpoints (`/api/predict`, `/api/goal-planner`, `/api/model-info`) for seamless third-party integrations.
 
 ---
 
@@ -63,51 +59,108 @@ Trained on a comprehensive dataset of student metrics, the system implements a p
 
 ```mermaid
 flowchart TD
-    A[Student / User] -->|Input Study & Lifestyle Data| B[Flask Web Interface - index.html]
-    B -->|HTTP POST Request| C[Backend Controller - app.py]
-    
-    subgraph Data Validation & Transformation
-        C --> D{Total Hours > 24?}
-        D -->|Yes| E[Return Error: Impossible Day Schedule]
-        D -->|No| F[Lifestyle Warning Checks: Study/Sleep > 20h]
-        F --> G[Scale Previous CGPA to 0-100 Score]
-        G --> H[Construct Feature DataFrame]
+    subgraph Frontend - Modern Glassmorphic Dashboard
+        A1[Theme Switcher: Dark / Light]
+        A2[Tab Navigation: Predictor | Goal Planner | Model Insights]
+        A3[Dual Controls: Sliders + Numeric Inputs + Presets]
+        A4[24-Hour Daily Budget Bar]
+        A5[Animated Radial SVG Gauge]
+        A6[AI Action Plan Cards]
     end
-    
-    subgraph Machine Learning Pipeline
-        H --> I[Load Serialized Model: student_model.pkl]
-        I --> J[Run Model Prediction: RandomForestRegressor]
-        J --> K[Clamp Output Range: 0 - 100]
-        K --> L[Convert Score to CGPA Scale: Score / 10]
+
+    subgraph Backend - Flask Application app.py
+        B1[Web Controller: GET / POST /]
+        B2[REST API: POST /api/predict]
+        B3[REST API: POST /api/goal-planner]
+        B4[REST API: GET /api/model-info]
+        B5[AI Advisory Engine: generate_ai_recommendations]
+        B6[Goal Optimization Engine: calculate_goal_plan]
     end
-    
-    L --> M[Render Results with Performance Badges & Progress Bar]
-    E --> B
-    M --> B
+
+    subgraph Machine Learning Layer
+        C1[student_model.pkl: RandomForestRegressor]
+    end
+
+    A3 -->|Live Fetch| B2
+    A3 -->|Form Post| B1
+    A2 -->|Goal Request| B3
+    B1 --> C1
+    B2 --> C1
+    B3 --> C1
+    B2 --> B5
+    B3 --> B6
+    B5 --> A6
+    B6 --> A2
 ```
 
 ---
 
 ## 📊 Dataset & Feature Description
 
-The model utilizes student data encompassing academic indicators and daily behavioral factors:
+The model is trained on a 10,000-record student benchmark dataset:
 
-| Feature Name | Type | Unit / Range | Description |
-| :--- | :--- | :--- | :--- |
-| **Hours Studied** | Continuous / Integer | $1 - 24\text{ hrs}$ | Daily time dedicated to self-study and learning |
-| **Previous Scores** | Continuous / Float | $0 - 100\text{ marks}$ (or $0.0 - 10.0\text{ CGPA}$) | Academic score achieved in preceding assessments |
-| **Extracurricular Activities** | Categorical / Binary | `Yes` ($1$) / `No` ($0$) | Active involvement in sports, clubs, or arts |
-| **Sleep Hours** | Continuous / Integer | $0 - 24\text{ hrs}$ | Average daily sleep duration |
-| **Sample Question Papers Practiced** | Discrete / Integer | $0 - 10+$ | Number of mock/sample papers completed |
-| **Performance Index (Target)** | Continuous / Float | $10.0 - 100.0$ | Overall academic outcome index |
+| Feature Name | Type | Scale / Range | Impact Weight | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hours Studied** | Numeric | $1 - 24\text{ hrs}$ | **Very High** | Daily self-study and revision hours |
+| **Previous Scores** | Numeric | $0 - 100\text{ marks}$ ($0 - 10\text{ CGPA}$) | **Very High** | Historical academic baseline |
+| **Sample Question Papers** | Numeric | $0 - 10\text{ papers}$ | **High** | Mock tests and practice papers solved |
+| **Sleep Hours** | Numeric | $0 - 24\text{ hrs}$ | **Moderate** | Daily sleep duration for cognitive retention |
+| **Extracurricular Activities**| Categorical | `Yes` ($1$) / `No` ($0$) | **Moderate** | Involvement in arts, sports, or clubs |
+| **Performance Index (Target)**| Numeric | $10.0 - 100.0$ | **Target** | Target score mapped to 10.0 CGPA |
 
 ---
 
-## 🧠 Machine Learning Model
+## 🔌 REST API Documentation
 
-- **Primary Algorithm:** `RandomForestRegressor` (`n_estimators=200`, `max_depth=10`, `random_state=42`) / `LinearRegression` baseline.
-- **Preprocessing:** Categorical mapping for binary variables (`Yes/No` $\to$ `1/0`) and standard train-test splitting ($80/20$ ratio).
-- **Serialization:** Exported via `joblib` into a lightweight, deployable `student_model.pkl` binary.
+### 1. Predict Performance (`POST /api/predict`)
+
+**Request Payload:**
+```json
+{
+  "hours": 6.0,
+  "prev": 8.0,
+  "extra": 1,
+  "sleep": 7.5,
+  "papers": 5
+}
+```
+
+**Response Payload:**
+```json
+{
+  "success": true,
+  "data": {
+    "cgpa": 8.75,
+    "score": 87.5,
+    "tier": "Distinction",
+    "badge": "🟢 Excellent",
+    "grade": "A+",
+    "free_hours": 10.5,
+    "recommendations": [
+      {
+        "icon": "🌟",
+        "title": "Strong Mock Practice",
+        "message": "Your rigorous practice with sample papers provides a great advantage in speed and pattern familiarity.",
+        "type": "positive"
+      }
+    ]
+  }
+}
+```
+
+### 2. "What-If" Goal Planner (`POST /api/goal-planner`)
+
+**Request Payload:**
+```json
+{
+  "target_cgpa": 9.0,
+  "prev_cgpa": 7.2,
+  "extra": 1,
+  "sleep": 7.5,
+  "hours": 5.0,
+  "papers": 4
+}
+```
 
 ---
 
@@ -117,17 +170,18 @@ The model utilizes student data encompassing academic indicators and daily behav
 Student-Performance-Prediction/
 │
 ├── static/
-│   └── style.css                 # Glassmorphism UI styling & animated CSS gradients
+│   ├── style.css                 # Glassmorphic CSS design system, dark/light theme, radial gauge styles
+│   └── script.js                 # Real-time slider sync, 24-hr budget tracker, async API integration
 ├── templates/
-│   └── index.html                # Jinja2 template with dynamic alerts & progress meters
-├── Student_Performance.csv       # Raw 10,000-record student benchmark dataset
-├── Student_Performance.xls       # Excel formatted reference dataset
+│   └── index.html                # Multi-view dashboard template (Predictor, Goal Planner, Insights)
+├── Student_Performance.csv       # 10,000-record student benchmark dataset
+├── Student_Performance.xls       # Excel formatted raw dataset
 ├── student data.ipynb            # Exploratory Data Analysis (EDA) & baseline experimentation
 ├── train_model.py                # Model training & serialization pipeline
-├── student_model.pkl             # Trained Scikit-Learn model binary artifact
-├── app.py                        # Flask server containing business logic & inference engine
-├── requirements.txt              # Core project dependencies
-├── Procfile                      # WSGI process manager config for cloud deployment
+├── student_model.pkl             # Serialized Scikit-Learn Random Forest Regressor
+├── app.py                        # Flask server with web views, REST APIs & AI advisory engines
+├── requirements.txt              # Production Python dependencies
+├── Procfile                      # Cloud deployment configuration
 └── README.md                     # Comprehensive project documentation
 ```
 
@@ -135,11 +189,9 @@ Student-Performance-Prediction/
 
 ## 🚀 Getting Started
 
-Follow these steps to set up and run the application locally on your machine.
-
 ### Prerequisites
 
-- **Python 3.9+** installed on your system.
+- **Python 3.9+** installed on your machine.
 - `git` installed.
 
 ### Installation & Setup
@@ -169,7 +221,7 @@ Follow these steps to set up and run the application locally on your machine.
 
 ### Running the Application
 
-1. **Launch the Flask Development Server:**
+1. **Launch the Flask Server:**
    ```bash
    python app.py
    ```
@@ -182,62 +234,12 @@ Follow these steps to set up and run the application locally on your machine.
 
 ---
 
-## 🔄 Model Training & Pipeline
-
-If you wish to re-train the model on updated datasets or tune hyperparameters:
-
-1. Ensure `Student_Performance.csv` is in the root directory.
-2. Run the training script:
-   ```bash
-   python train_model.py
-   ```
-   *(Or open `student data.ipynb` in VS Code / Jupyter Lab to inspect EDA visuals, scatter plots, and correlation metrics).*
-3. The script will export a new `student_model.pkl` ready for immediate consumption by `app.py`.
-
----
-
 ## ☁️ Deployment
 
-The project is pre-configured for one-click deployment across major cloud providers:
+The project is pre-configured with a `Procfile` for one-click deployment on **Render**, **Railway**, or **Heroku**:
 
-### Deploying to Render / Railway
-
-1. Push your repository to GitHub.
-2. Create a **New Web Service** and link your GitHub repository.
-3. Configure the build parameters:
-   - **Environment:** `Python 3`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `gunicorn app:app`
-4. Click **Deploy**.
-
-### Deploying to Heroku
-
-```bash
-heroku login
-heroku create student-performance-predictor-ai
-git push heroku main
-heroku open
-```
-
----
-
-## 🛡️ Validation & Edge-Case Handling
-
-| Scenario | Input Condition | Application Behavior |
-| :--- | :--- | :--- |
-| **Impossible Day Schedule** | $\text{Study Hours} + \text{Sleep Hours} > 24$ | Displays red error banner: *"In a day, there are only 24 hours."* (Prediction blocked) |
-| **Excessive Study Warning** | $\text{Study Hours} > 20$ | Generates yellow advisory warning regarding burnout & health |
-| **Excessive Sleep Warning** | $\text{Sleep Hours} > 20$ | Generates yellow advisory warning regarding sleep schedule |
-| **Score Boundary Clamping** | Model raw output $<0$ or $>100$ | Automatically clipped to $[0, 100]$ to prevent invalid CGPA scores |
-
----
-
-## 🔮 Future Enhancements
-
-- [ ] **SHAP / LIME Interpretability:** Provide personalized feedback on which factors most influenced the student's prediction.
-- [ ] **Custom Study Plan Generator:** Generate an AI-suggested revision and sleep routine based on target CGPA goals.
-- [ ] **Multi-Subject Deep-Dive:** Predict scores on a per-subject basis with historical trend charts.
-- [ ] **RESTful API Endpoint (`/api/v1/predict`):** Provide JSON API responses for mobile app integrations.
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `gunicorn app:app`
 
 ---
 
